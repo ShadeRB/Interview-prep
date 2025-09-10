@@ -1,0 +1,324 @@
+A. Business Framing
+
+Q1. What was the main business problem?
+Answer:
+
+"Telemarketing was inefficient: ~88% said “No” to term deposits. That means wasted agent time, higher cost-per-acquisition (CPA), and risk of annoying good customers."
+
+Goal: Predict who’s likely to say “Yes” so we call fewer people but get the same or more subscriptions.
+
+"Business KPI tie-in: reduce dials, lower CPA, increase conversion rate and campaign ROI."
+
+Mini-example: Old way ? 100 calls ? ~12 yes.
+"Model way ? Call only top 40 prospects ? ~15 yes. Fewer calls, more wins."
+
+Q2. Who were your key stakeholders and why would they care?
+Answer:
+
+Marketing: Higher conversion without bigger budget; cleaner audience targeting.
+
+Sales/Contact Center: Better lead list; fewer cold calls; morale boost.
+
+"Executives/Finance: Lower CPA, higher ROI, clearer attribution."
+
+"Customers: Fewer irrelevant calls; more timely, relevant offers."
+
+"Why it matters: DS outputs map directly to cost per contact, conversion, revenue lift, and NPS/complaints."
+
+Q3. How does your solution provide measurable value?
+Answer:
+
+Baseline conversion: ~11%.
+
+Targeting with the model: Focus on clients with >25–30% predicted likelihood. That cuts ~80–86% of low-value calls.
+
+"How we measure: A/B test by list segment ? compare conversion, CPA, and net profit."
+
+Simple formula: Profit ? (Subscriptions × Avg Margin) ? (Calls × Cost-per-call).
+Raising precision at a chosen threshold improves both sides of that equation.
+
+
+
+B. Data & EDA
+
+Q4. What dataset and target?
+Answer:
+
+"UCI Bank Marketing: ~41k rows, 21 features (client attributes + campaign info)."
+
+Target: y = subscribed to term deposit (yes/no).
+
+Setup:
+
+python
+CopyEdit
+y = data['y']
+"X = data.drop('y', axis=1)"
+
+Q5. How did you handle data leakage?
+Answer:
+
+Leakage = using info you wouldn’t have before the call.
+
+Dropped duration (call length)—it’s only known after the call.
+
+"Controlled “current campaign” fields (e.g., contact count) to first-call context or excluded when ambiguous."
+
+python
+CopyEdit
+"X = X.drop('duration', axis=1)"
+
+My opinion: Leakage checks should be a hard gate in code review.
+
+Q6. Biggest data challenge?
+Answer:
+
+"Imbalanced classes: ~88% “No”, 12% “Yes” ? a naive model can “look good” by predicting No."
+
+"Fix: SMOTE on the training set + tried class weights; evaluated with precision/recall and ROC-AUC, not accuracy."
+
+python
+CopyEdit
+smote = SMOTE(random_state=42)
+"X_train_res, y_train_res = smote.fit_resample(X_train, y_train)"
+
+"Also checked time splits (train earlier months, test later) to mimic real campaigns."
+
+
+
+C. Feature Engineering & Preprocessing
+
+Q7. What preprocessing did you apply?
+Answer:
+
+Numeric: StandardScaler (helps NN converge).
+
+Categorical: OneHotEncoder(handle_unknown='ignore').
+
+Single pipeline via ColumnTransformer to avoid train/serve mismatch.
+
+python
+CopyEdit
+preprocessor = ColumnTransformer([
+"    ('num', StandardScaler(), numeric_features),"
+"    ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features)"
+])
+
+Q8. Which features mattered most?
+Answer:
+
+SHAP insights (examples):
+
+
+
+poutcome_success (prior success) ? strong positive effect.
+
+month_may (seasonality) ? tends to lift probability in some years.
+
+"Housing/loan indicators, pdays (time since last contact), age bands ? meaningful patterns."
+
+Interpretation example: Prior success can push a client’s predicted prob from 0.25 ? 0.40.
+
+
+
+D. Modeling & Evaluation
+
+Q9. Which models and why?
+Answer:
+
+Logistic Regression (strong baseline; calibrated probs).
+
+"Decision Tree (simple, interpretable)."
+
+Random Forest (nonlinear interactions).
+
+Neural Network (captures complex patterns with scaled inputs).
+
+Q10. Which performed best?
+Answer:
+
+"Neural Network: ~81% accuracy, ROC-AUC ? 0.94, good balance of precision/recall at useful thresholds."
+
+"Random Forest: solid, but slightly lower precision at higher thresholds."
+
+"Decision Tree: easy to explain, weaker recall."
+
+Note: We optimized for business (precision at top-k) more than raw accuracy.
+
+Q11. How did you explain the model?
+Answer:
+
+SHAP for the NN (global + per-client reasons).
+
+Feature importance for trees; partial dependence for key drivers.
+
+Delivered reason codes in the dashboard (“Why this lead?”) to build trust.
+
+Q12. How did you test robustness?
+Answer:
+
+"Stratified train/test, k-fold CV, time-based splits."
+
+Early stopping for NN; seed control for reproducibility.
+
+Sensitivity analysis: with/without borderline features; calibration checks.
+
+
+
+E. Deployment & Integration
+
+Q13. How did non-technical users consume it?
+Answer:
+
+Streamlit app with:
+
+
+
+Single-client form.
+
+Batch upload (CSV) ? scored list.
+
+Threshold slider + “High Priority” flag.
+
+Export to CSV for calling lists.
+
+Q14. How would this run in production?
+Answer:
+
+Batch scoring daily (feature store ? model ? CRM list).
+
+Or real-time API for on-demand scoring.
+
+Store predictions + outcomes for feedback loop.
+
+Retrain monthly/quarterly; monitor data drift & performance.
+
+Q15. How does threshold affect ROI?
+Answer:
+
+"Higher threshold ? fewer calls, higher precision (better CPA)."
+
+"Lower threshold ? more calls, higher recall (don’t miss maybes)."
+
+Pick threshold by maximizing Expected Profit:
+Profit ? TP × Margin_per_sale ? Calls × Cost_per_call.
+
+Use Precision–Recall curves to pick the sweet spot.
+
+
+
+F. Risks & Limitations
+
+Q16. Main risks?
+Answer:
+
+Imbalance can still skew results if monitoring lapses.
+
+Historical bias (who we used to call) can be baked in.
+
+Model drift as economy/behavior changes.
+
+Leakage if someone reintroduces duration by mistake.
+
+"Compliance: contact frequency, consent, fairness."
+
+Q17. How to mitigate drift?
+Answer:
+
+Monitoring: live precision/recall vs test.
+
+Data quality checks at ingest.
+
+Scheduled retraining + champion/challenger models.
+
+"Track SHAP shifts—if drivers change, investigate."
+
+
+
+G. Future Enhancements
+
+Q18. What would you improve with more time?
+Answer:
+
+XGBoost/LightGBM with calibrated probs.
+
+Uplift modeling (who is persuadable vs already-yes).
+
+Cost-sensitive learning (directly optimize profit).
+
+MLflow for experiment tracking; full MLOps.
+
+A/B tests tied to hard $$ outcomes.
+
+Q19. How does this show you’re ready for a DS role?
+Answer:
+
+Took it end-to-end: problem ? data ? modeling ? explainability ? deployment plan.
+
+Kept a business-first lens (CPA/ROI).
+
+Built trust with transparent explanations.
+
+"My opinion: This is exactly the DS muscle teams want—impact over accuracy. Having said that, I’m comfortable going deep technically when needed."
+
+
+
+Rapid-Fire (Role-Generic)
+
+1) Experience with transaction & engagement data
+
+"Pulled large datasets with SQL, analyzed in Python."
+
+"Found patterns (e.g., weekly app users had higher uptake of premium offers)."
+
+Turned insights into targeted campaigns with measurable lift.
+
+2) Translating tech to business
+
+Drop jargon; use plain language + visuals.
+
+"“Segmenting by behavior increased sign-ups by ~12%,” not “AUC improved by 0.04.”"
+
+3) Tools & automation
+
+"SQL, Python (Pandas/NumPy/Sklearn), Power BI/Tableau."
+
+Automated a weekly report from 3 hours to 10 minutes using Python.
+
+4) Handling large datasets
+
+Indexing + early filtering in SQL; chunked processing in Python.
+
+Standardized cleaning pipelines to reduce errors.
+
+5) Partnering with the business
+
+"Start with decisions, not data."
+
+"Share early cuts, get feedback, iterate to the highest-value segments."
+
+6) Visualization driving decisions
+
+Churn dashboard showed spike after fee changes ? tested staged rollout and reduced churn.
+
+7) Ensuring accuracy
+
+"Validate sources, handle duplicates/missing values, peer review key outputs."
+
+Caught duplicate transactions that inflated revenue—fixed before exec review.
+
+8) End-to-end project example
+
+Email campaign optimization: requirements ? data ? Python analysis ? dashboard ? +15% open rate after personalization.
+
+9) Cloud (Azure) experience
+
+"Synapse for SQL, Blob for storage, Power BI for sharing."
+
+Enabled cross-site access (Toronto/Vancouver) with a single source of truth.
+
+10) Handling changing priorities
+
+Re-prioritize by business impact; communicate trade-offs.
+
+Delivered an urgent campaign analysis in 2 days without missing other deadlines.

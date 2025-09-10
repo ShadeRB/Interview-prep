@@ -1,0 +1,110 @@
+Section,Question,Answer,Answer (Simple with Example),Code Snippet
+Concepts & Definitions,"What is the difference between AI, Machine Learning, Deep Learning, and Data Science?","AI is a broad field that enables machines to mimic human intelligence. ML is a subset of AI focused on learning from data. DL is a subset of ML using neural networks with multiple layers. Data Science is a field that uses tools from AI, ML, and stats to extract insights from data.","AI: Any machine mimicking human behavior (e.g., Alexa).
+ML: Subset of AI, learns from data (e.g., Netflix recommendations).
+DL: Subset of ML using neural networks (e.g., face recognition).
+DS: Uses all above to extract insights (e.g., analyzing customer churn).","from sklearn.linear_model import LinearRegression
+model = LinearRegression().fit(X, y)"
+Concepts & Definitions,Explain Supervised vs Unsupervised vs Reinforcement Learning.,"Supervised: Uses labeled data. Unsupervised: No labels, finds hidden patterns. Reinforcement: Agent learns by interacting with an environment and receiving rewards.","Supervised: Email spam filter (labeled as spam or not).
+Unsupervised: Grouping customers based on shopping habits.
+Reinforcement: Game bot learns by playing and receiving points.","# Supervised
+from sklearn.tree import DecisionTreeClassifier
+model = DecisionTreeClassifier().fit(X_train, y_train)
+
+# Unsupervised
+from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=3).fit(X)
+
+# Reinforcement (pseudo-code)
+# agent.learn(reward, state)"
+Concepts & Definitions,What are the types of regression techniques used in ML?,"Linear, Logistic, Ridge, Lasso, Polynomial, and ElasticNet regression.","Linear: Predict house price.
+Logistic: Predict if a person has diabetes (yes/no).
+Ridge/Lasso: Linear with penalty to avoid overfitting.
+ElasticNet: Combo of Ridge & Lasso.","from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge, Lasso
+LinearRegression().fit(X, y)
+LogisticRegression().fit(X, y)
+Ridge().fit(X, y)
+Lasso().fit(X, y)"
+Concepts & Definitions,What’s the difference between classification and regression?,"Classification predicts discrete labels (e.g., spam/not spam). Regression predicts continuous values (e.g., house price).","Classification: Predict if email is spam or not.
+Regression: Predict how many hours a student will study.","# Classification
+from sklearn.ensemble import RandomForestClassifier
+RandomForestClassifier().fit(X, y)
+
+# Regression
+from sklearn.linear_model import LinearRegression
+LinearRegression().fit(X, y)"
+Concepts & Definitions,Define overfitting and underfitting. How can you prevent them?,"Overfitting = model too complex, high train accuracy but poor generalization. Underfitting = too simple, poor performance. Prevent using regularization, more data, simpler model, or cross-validation.","Overfitting: Memorizes training data, fails on new.
+Underfitting: Can't even learn training data well.
+Fix: Use cross-validation, regularization, or simpler model.","# Preventing Overfitting using cross-validation
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(model, X, y, cv=5)"
+Concepts & Definitions,Explain the bias-variance tradeoff.,Bias: Error from wrong assumptions. Variance: Error from too much complexity. Need to balance both to avoid under/overfitting.,"Bias: Too simple (e.g., straight line for a curve).
+Variance: Too complex (e.g., too many wiggles).
+Goal: Balance both with proper model choice.","# Bias-variance tradeoff visualized (conceptual)
+# Not actual code, but you'd plot train/test error vs model complexity"
+Concepts & Definitions,"What are precision, recall, F1 score, and accuracy? When would you use each?","Precision = TP / (TP + FP), Recall = TP / (TP + FN), F1 = harmonic mean. Use precision when false positives are bad, recall when false negatives are worse.","Accuracy: All correct predictions.
+Precision: Out of predicted positives, how many correct (important for spam).
+Recall: Out of actual positives, how many found (important for cancer).
+F1: Balance of both.","from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+precision_score(y_true, y_pred)
+recall_score(y_true, y_pred)
+f1_score(y_true, y_pred)
+accuracy_score(y_true, y_pred)"
+Algorithms,How does a decision tree work?,It splits data based on the most informative feature using metrics like Gini or entropy until leaves represent decisions.,"Like playing 20 questions: Is income > 50K? Yes → Next Q.
+Splits data into decision paths based on best criteria.","from sklearn.tree import DecisionTreeClassifier
+model = DecisionTreeClassifier().fit(X, y)"
+Algorithms,What is bagging and boosting? Compare Random Forest vs Gradient Boosting.,"Bagging = parallel model training (e.g., Random Forest), Boosting = sequential learning (e.g., Gradient Boosting). Random Forest is more robust, Gradient Boosting gives better accuracy but more prone to overfit.","Bagging: Random Forest (many models vote together).
+Boosting: Gradient Boosting (models correct each other).
+Bagging = stable, Boosting = accurate but riskier.","from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+RandomForestClassifier().fit(X, y)
+GradientBoostingClassifier().fit(X, y)"
+Algorithms,How does k-means clustering work?,It partitions data into K clusters by minimizing within-cluster distances. It updates centroids iteratively until convergence.,"Start with k groups (e.g., 3 store locations), assign nearest customers, update group centers, repeat until stable.","from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=3).fit(X)"
+Algorithms,Describe how SVM separates classes.,"SVM finds the hyperplane that best separates classes with the maximum margin, possibly in a higher-dimensional space using kernel trick.","Draws a line (or hyperplane) between classes with maximum gap.
+Think of separating apples and oranges by size and color.","from sklearn.svm import SVC
+model = SVC(kernel='linear').fit(X, y)"
+Algorithms,What is the difference between PCA and LDA?,"PCA: Unsupervised, reduces dimensionality by variance. LDA: Supervised, reduces dimensions by maximizing class separability.","PCA: Like compressing an image keeping most info.
+LDA: Compress but also separate categories clearly (e.g., spam vs not).","from sklearn.decomposition import PCA
+pca = PCA(n_components=2).fit_transform(X)
+
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+lda = LinearDiscriminantAnalysis(n_components=1).fit(X, y)"
+Python & Libraries,How do you handle missing data in pandas?,"Use df.fillna(), df.dropna(), or df.interpolate().","Use df.dropna() to remove, df.fillna() to fill missing values.
+E.g., df.fillna(df.mean()) fills with average.","df.dropna()
+df.fillna(df.mean())"
+Python & Libraries,What’s the use of NumPy in data science?,"NumPy provides fast numerical operations on arrays, used for mathematical computation and feeding data into ML models.","NumPy = fast math on arrays.
+E.g., calculating average temperature from a large sensor dataset.","import numpy as np
+arr = np.array([1, 2, 3])
+mean_val = np.mean(arr)"
+Python & Libraries,Explain how train_test_split() and cross_val_score() work in sklearn.,train_test_split() splits data into train/test sets. cross_val_score() evaluates a model using cross-validation for better generalization estimates.,"train_test_split(): Break data into training/testing sets.
+cross_val_score(): Run multiple train/test cycles to test stability.","from sklearn.model_selection import train_test_split, cross_val_score
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+scores = cross_val_score(model, X, y, cv=5)"
+Projects & Real-World Scenarios,Describe a project where you used ML for prediction.,"E.g., predicting employee attrition using logistic regression. Used pandas for EDA, sklearn for modeling, and matplotlib for visualization.","Predicting loan default: Cleaned data with pandas, modeled with logistic regression, presented accuracy.","# Project pipeline example
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression().fit(X_train, y_train)"
+Projects & Real-World Scenarios,How do you choose the right model for your problem?,"By testing different algorithms, analyzing the data size/type, and evaluating using metrics like accuracy, RMSE, or AUC.","Test models (e.g., decision tree vs logistic), use metrics (accuracy for balance, AUC for imbalance), and business goal.","# Model comparison using cross-validation
+from sklearn.model_selection import cross_val_score
+cross_val_score(RandomForestClassifier(), X, y, cv=5)"
+Projects & Real-World Scenarios,How do you explain model predictions to a non-technical stakeholder?,"Use visual tools (charts), analogies, and focus on how predictions affect business outcomes, not the math behind them.","Use a chart: ‘This model helps us identify 80% of at-risk customers.’ No math, just value and impact.","# SHAP for explainability
+import shap
+explainer = shap.Explainer(model, X)
+shap_values = explainer(X)
+shap.plots.beeswarm(shap_values)"
+Deep Learning,What is a neural network?,A neural network is a series of layers mimicking the brain's neurons to learn patterns and make predictions.,"Neural network = brain-inspired math model.
+E.g., learns if an image is a cat or dog from examples.","# Simple neural network
+from keras.models import Sequential
+from keras.layers import Dense
+model = Sequential([Dense(32, input_shape=(10,), activation='relu'), Dense(1, activation='sigmoid')])"
+Deep Learning,How do CNNs work in image classification?,"CNNs use convolutional layers to capture spatial features, pooling to reduce dimensionality, and fully connected layers for classification.","CNN sees image like human eyes: finds edges → shapes → objects.
+E.g., detecting number in a handwritten digit.","# CNN for image classification
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+model = Sequential([
+  Conv2D(32, (3,3), activation='relu', input_shape=(28,28,1)),
+  MaxPooling2D(2,2),
+  Flatten(),
+  Dense(10, activation='softmax')
+])"
+Deep Learning,What is backpropagation and why is it important?,Backpropagation updates weights in a neural network by computing gradients via the chain rule to minimize error (loss function).,It adjusts weights by comparing error in output and correcting step-by-step. Like improving your aim after each dart throw.,"# Backprop handled automatically in training
+model.compile(optimizer='adam', loss='binary_crossentropy')
+model.fit(X_train, y_train, epochs=10)"
